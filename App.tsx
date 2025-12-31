@@ -7,6 +7,127 @@ import { AppStatus, ImageData, HistoryItem } from './types';
 
 // --- View Components ---
 
+const CheckoutView = ({ onPaymentSuccess, onCancel }: { onPaymentSuccess: () => void, onCancel: () => void }) => {
+  const [isProcessing, setIsProcessing] = useState(false);
+  const [formData, setFormData] = useState({ name: '', card: '', expiry: '', cvc: '' });
+
+  const handlePay = (e: React.FormEvent) => {
+    e.preventDefault();
+    setIsProcessing(true);
+    // Simulate API delay to a payment processor like Stripe
+    setTimeout(() => {
+      setIsProcessing(false);
+      onPaymentSuccess();
+    }, 2500);
+  };
+
+  return (
+    <div className="max-w-xl mx-auto py-12 animate-in fade-in zoom-in-95 duration-500">
+      <button onClick={onCancel} className="text-gray-500 hover:text-white mb-8 flex items-center gap-2 transition-colors">
+        <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M15 19l-7-7 7-7" /></svg>
+        Back to Pricing
+      </button>
+
+      <div className="bg-[#121212] border border-white/10 rounded-[2.5rem] overflow-hidden shadow-2xl">
+        <div className="bg-gradient-to-r from-yellow-600 to-yellow-400 p-6 text-black text-center">
+          <h2 className="text-xl font-black uppercase tracking-tighter">Secure Checkout</h2>
+          <p className="text-xs font-bold opacity-80 italic">Unlocking Aura Pro Access</p>
+        </div>
+
+        <div className="p-8">
+          <div className="flex justify-between items-center mb-8 pb-6 border-b border-white/5">
+            <div>
+              <h3 className="font-bold">Aura Pro Subscription</h3>
+              <p className="text-xs text-gray-500">Billed monthly. Cancel anytime.</p>
+            </div>
+            <div className="text-2xl font-black">$9.99</div>
+          </div>
+
+          <form onSubmit={handlePay} className="space-y-4">
+            <div>
+              <label className="text-[10px] font-bold uppercase text-gray-500 ml-1">Cardholder Name</label>
+              <input 
+                required
+                type="text" 
+                placeholder="John Doe"
+                className="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3 text-sm focus:border-yellow-500 outline-none transition-colors mt-1"
+                onChange={e => setFormData({...formData, name: e.target.value})}
+              />
+            </div>
+            <div>
+              <label className="text-[10px] font-bold uppercase text-gray-500 ml-1">Card Number</label>
+              <div className="relative">
+                <input 
+                  required
+                  type="text" 
+                  placeholder="0000 0000 0000 0000"
+                  className="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3 text-sm focus:border-yellow-500 outline-none transition-colors mt-1"
+                  onChange={e => setFormData({...formData, card: e.target.value})}
+                />
+                <div className="absolute right-3 top-1/2 -translate-y-1/2 flex gap-1">
+                  <div className="w-6 h-4 bg-white/20 rounded-sm"></div>
+                  <div className="w-6 h-4 bg-white/20 rounded-sm"></div>
+                </div>
+              </div>
+            </div>
+            <div className="grid grid-cols-2 gap-4">
+              <div>
+                <label className="text-[10px] font-bold uppercase text-gray-500 ml-1">Expiry</label>
+                <input 
+                  required
+                  type="text" 
+                  placeholder="MM/YY"
+                  className="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3 text-sm focus:border-yellow-500 outline-none transition-colors mt-1"
+                />
+              </div>
+              <div>
+                <label className="text-[10px] font-bold uppercase text-gray-500 ml-1">CVC</label>
+                <input 
+                  required
+                  type="password" 
+                  placeholder="***"
+                  className="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3 text-sm focus:border-yellow-500 outline-none transition-colors mt-1"
+                />
+              </div>
+            </div>
+
+            <button 
+              type="submit"
+              disabled={isProcessing}
+              className={`w-full py-4 rounded-2xl font-black mt-6 transition-all shadow-xl flex items-center justify-center gap-3 ${
+                isProcessing ? 'bg-gray-800 text-gray-500' : 'bg-white text-black hover:bg-yellow-500 active:scale-95'
+              }`}
+            >
+              {isProcessing ? (
+                <>
+                  <div className="w-5 h-5 border-2 border-white/10 border-t-white rounded-full animate-spin"></div>
+                  AUTHORIZING...
+                </>
+              ) : (
+                <>
+                  <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" /></svg>
+                  PAY $9.99 NOW
+                </>
+              )}
+            </button>
+          </form>
+
+          <div className="mt-8 flex flex-col items-center gap-4">
+            <div className="flex gap-4 opacity-30 grayscale">
+               <span className="text-xs font-bold uppercase italic">VISA</span>
+               <span className="text-xs font-bold uppercase italic">MASTERCARD</span>
+               <span className="text-xs font-bold uppercase italic">AMEX</span>
+            </div>
+            <p className="text-[10px] text-gray-600 text-center max-w-xs leading-relaxed">
+              Your payment is secured with 256-bit SSL encryption. By clicking Pay Now, you agree to the Aura Terms of Service.
+            </p>
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+};
+
 const HowItWorksView = () => (
   <div className="max-w-4xl mx-auto py-12 animate-in fade-in slide-in-from-bottom-4 duration-700">
     <div className="text-center mb-16">
@@ -63,13 +184,13 @@ const PricingView = ({ isSubscribed, onUpgrade }: { isSubscribed: boolean, onUpg
         </div>
       </div>
 
-      <div className="bg-white text-black p-10 rounded-[2.5rem] relative shadow-2xl shadow-orange-500/20 scale-105 border-4 border-orange-500">
-        <div className="absolute -top-4 left-1/2 -translate-x-1/2 bg-orange-500 text-white px-4 py-1 rounded-full text-[10px] font-black uppercase tracking-widest shadow-lg">PRO ACCESS</div>
+      <div className="bg-white text-black p-10 rounded-[2.5rem] relative shadow-2xl shadow-orange-500/20 scale-105 border-4 border-yellow-500">
+        <div className="absolute -top-4 left-1/2 -translate-x-1/2 bg-yellow-500 text-white px-4 py-1 rounded-full text-[10px] font-black uppercase tracking-widest shadow-lg">PRO ACCESS</div>
         <h3 className="text-2xl font-bold mb-2">Aura Pro</h3>
         <p className="text-gray-600 mb-8 text-sm italic">For the serious dater</p>
         <div className="text-4xl font-black mb-8">$9.99 <span className="text-sm font-normal text-gray-500">/ month</span></div>
         <ul className="space-y-4 mb-10 text-sm font-medium">
-          <li className="flex items-center gap-2 text-orange-600">✅ UNLIMITED 4K Downloads</li>
+          <li className="flex items-center gap-2 text-yellow-600 font-bold uppercase tracking-tight">✅ UNLIMITED 4K Downloads</li>
           <li className="flex items-center gap-2">✅ All Background Presets</li>
           <li className="flex items-center gap-2">✅ Custom AI Refinement</li>
           <li className="flex items-center gap-2">✅ Priority Cloud Generation</li>
@@ -79,7 +200,7 @@ const PricingView = ({ isSubscribed, onUpgrade }: { isSubscribed: boolean, onUpg
           onClick={onUpgrade}
           disabled={isSubscribed}
           className={`w-full py-4 rounded-2xl font-black transition-all shadow-xl ${
-            isSubscribed ? 'bg-green-600 text-white cursor-default' : 'bg-orange-500 text-white hover:brightness-110 active:scale-95'
+            isSubscribed ? 'bg-green-600 text-white cursor-default' : 'bg-yellow-500 text-white hover:brightness-110 active:scale-95'
           }`}
         >
           {isSubscribed ? '✓ Pro Subscribed' : 'Unlock Downloads Now'}
@@ -176,7 +297,7 @@ const TermsView = () => (
 // --- Main Editor Component ---
 
 const App: React.FC = () => {
-  const [view, setView] = useState<'editor' | 'how-it-works' | 'pricing' | 'safety' | 'privacy' | 'terms'>('editor');
+  const [view, setView] = useState<'editor' | 'how-it-works' | 'pricing' | 'safety' | 'privacy' | 'terms' | 'checkout'>('editor');
   const [isSubscribed, setIsSubscribed] = useState(false);
   const [original, setOriginal] = useState<ImageData | null>(null);
   const [edited, setEdited] = useState<string | null>(null);
@@ -270,7 +391,8 @@ const App: React.FC = () => {
   const renderContent = () => {
     switch (view) {
       case 'how-it-works': return <HowItWorksView />;
-      case 'pricing': return <PricingView isSubscribed={isSubscribed} onUpgrade={() => { setIsSubscribed(true); setView('editor'); }} />;
+      case 'pricing': return <PricingView isSubscribed={isSubscribed} onUpgrade={() => setView('checkout')} />;
+      case 'checkout': return <CheckoutView onPaymentSuccess={() => { setIsSubscribed(true); setView('editor'); }} onCancel={() => setView('pricing')} />;
       case 'safety': return <SafetyView />;
       case 'privacy': return <PrivacyView />;
       case 'terms': return <TermsView />;
@@ -306,7 +428,7 @@ const App: React.FC = () => {
                   {status === AppStatus.EDITING && (
                     <div className="absolute inset-0 bg-black/60 backdrop-blur-md z-20 flex flex-col items-center justify-center gap-6">
                       <div className="relative">
-                        <div className="w-16 h-16 border-4 border-orange-500/20 border-t-orange-500 rounded-full animate-spin"></div>
+                        <div className="w-16 h-16 border-4 border-yellow-500/20 border-t-yellow-500 rounded-full animate-spin"></div>
                         <div className="absolute inset-0 flex items-center justify-center">
                           <div className="w-8 h-8 bg-white/10 rounded-full animate-ping"></div>
                         </div>
@@ -328,13 +450,13 @@ const App: React.FC = () => {
                   {showPaywall && !isSubscribed && (
                     <div className="absolute inset-0 bg-black/80 backdrop-blur-sm z-30 flex items-center justify-center p-8 text-center animate-in zoom-in-95 duration-200">
                       <div className="max-w-xs flex flex-col items-center bg-[#1a1a1a] p-8 rounded-[2rem] border border-white/10 shadow-2xl">
-                        <div className="w-16 h-16 bg-orange-500/10 text-orange-500 rounded-full flex items-center justify-center text-3xl mb-4 border border-orange-500/20">🔒</div>
+                        <div className="w-16 h-16 bg-yellow-500/10 text-yellow-500 rounded-full flex items-center justify-center text-3xl mb-4 border border-yellow-500/20">🔒</div>
                         <h3 className="text-xl font-bold mb-2">Aura Pro Feature</h3>
                         <p className="text-sm text-gray-400 mb-6 leading-relaxed">High-resolution downloads are exclusive to Pro members. Upgrade now to save your optimized photos to your device.</p>
                         <div className="flex flex-col gap-3 w-full">
                           <button 
-                            onClick={() => { setShowPaywall(false); setView('pricing'); }}
-                            className="bg-orange-500 text-white py-3 rounded-xl font-bold shadow-lg shadow-orange-500/20 hover:scale-[1.02] transition-transform"
+                            onClick={() => { setShowPaywall(false); setView('checkout'); }}
+                            className="bg-yellow-500 text-black py-3 rounded-xl font-bold shadow-lg shadow-yellow-500/20 hover:scale-[1.02] transition-transform"
                           >
                             Upgrade for $9.99
                           </button>
@@ -354,12 +476,12 @@ const App: React.FC = () => {
                     {edited && (
                       <button 
                         onClick={downloadImage}
-                        className={`${isSubscribed ? 'bg-white text-black' : 'bg-orange-500 text-white'} px-4 py-2 rounded-xl text-sm font-bold flex items-center gap-2 hover:brightness-110 transition-all shadow-lg active:scale-95`}
+                        className={`${isSubscribed ? 'bg-yellow-500 text-black' : 'bg-white/10 text-white backdrop-blur-md'} px-4 py-2 rounded-xl text-sm font-bold flex items-center gap-2 hover:brightness-110 transition-all shadow-lg active:scale-95 border border-white/10`}
                       >
                         <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                           <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M4 16v1a2 2 0 002 2h12a2 2 0 002-2v-1m-4-4l-4 4m0 0l-4-4m4 4V4" />
                         </svg>
-                        {isSubscribed ? 'DOWNLOAD 4K' : 'UPGRADE TO DOWNLOAD'}
+                        {isSubscribed ? 'DOWNLOAD 4K' : 'UNLOCK DOWNLOADS'}
                       </button>
                     )}
                     <button 
@@ -380,7 +502,7 @@ const App: React.FC = () => {
                         onMouseUp={() => setIsComparing(false)}
                         onTouchStart={() => setIsComparing(true)}
                         onTouchEnd={() => setIsComparing(false)}
-                        className="px-6 py-2 rounded-xl text-xs font-bold transition-all bg-white/5 hover:bg-white/10 text-white uppercase tracking-widest active:bg-orange-500 active:text-white"
+                        className="px-6 py-2 rounded-xl text-xs font-bold transition-all bg-white/5 hover:bg-white/10 text-white uppercase tracking-widest active:bg-yellow-500 active:text-white"
                       >
                         Hold to Compare Original
                       </button>
@@ -400,7 +522,7 @@ const App: React.FC = () => {
                       key={item.id}
                       onClick={() => setEdited(item.url)}
                       className={`flex-shrink-0 w-24 h-24 rounded-xl border-2 transition-all overflow-hidden ${
-                        edited === item.url ? 'border-orange-500 scale-95' : 'border-white/5 hover:border-white/20'
+                        edited === item.url ? 'border-yellow-500 scale-95' : 'border-white/5 hover:border-white/20'
                       }`}
                     >
                       <img src={item.url} className="w-full h-full object-cover" alt="History thumbnail" />
@@ -409,7 +531,7 @@ const App: React.FC = () => {
                   <button
                     onClick={() => setEdited(null)}
                     className={`flex-shrink-0 w-24 h-24 rounded-xl border-2 flex flex-col items-center justify-center text-[10px] uppercase font-bold transition-all ${
-                      !edited ? 'border-orange-500 bg-orange-500/10' : 'border-white/5 bg-[#121212] hover:border-white/20 text-gray-500'
+                      !edited ? 'border-yellow-500 bg-yellow-500/10 text-yellow-400' : 'border-white/5 bg-[#121212] hover:border-white/20 text-gray-500'
                     }`}
                   >
                     <span className="text-lg">🖼️</span>
@@ -439,7 +561,7 @@ const App: React.FC = () => {
                   onKeyDown={(e) => e.key === 'Enter' && customPrompt && onEdit(customPrompt)}
                 />
                 <button 
-                  className="bg-gradient-to-tr from-pink-500 to-orange-400 px-6 py-2 rounded-xl text-sm font-bold hover:brightness-110 active:scale-95 transition-all disabled:opacity-50"
+                  className={`px-6 py-2 rounded-xl text-sm font-bold hover:brightness-110 active:scale-95 transition-all disabled:opacity-50 ${isSubscribed ? 'bg-yellow-500 text-black' : 'bg-gradient-to-tr from-pink-500 to-orange-400'}`}
                   onClick={() => onEdit(customPrompt)}
                   disabled={!customPrompt}
                 >
@@ -454,7 +576,7 @@ const App: React.FC = () => {
             <section>
               <div className="flex items-center justify-between mb-4">
                 <h2 className="text-lg font-semibold flex items-center gap-2">
-                  <span className="text-orange-400">⚡</span> Enhancement Presets
+                  <span className="text-yellow-500">⚡</span> Enhancement Presets
                 </h2>
               </div>
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
@@ -465,7 +587,7 @@ const App: React.FC = () => {
                     disabled={!original || status === AppStatus.EDITING}
                     className={`flex flex-col items-start p-4 rounded-2xl border transition-all text-left group ${
                       activePreset === preset.id 
-                        ? 'bg-white/10 border-white/40 ring-1 ring-white/10' 
+                        ? (isSubscribed ? 'bg-yellow-500/10 border-yellow-500/40 ring-1 ring-yellow-500/10' : 'bg-white/10 border-white/40 ring-1 ring-white/10')
                         : 'bg-[#121212] border-white/5 hover:border-white/20'
                     } ${(!original || status === AppStatus.EDITING) ? 'opacity-50 cursor-not-allowed' : 'hover:-translate-y-0.5'}`}
                   >
@@ -504,18 +626,18 @@ const App: React.FC = () => {
             </section>
 
             <div className={`mt-auto p-6 rounded-3xl border relative overflow-hidden transition-all ${
-              isSubscribed ? 'bg-green-500/10 border-green-500/20 shadow-lg shadow-green-500/10' : 'bg-gradient-to-br from-pink-500/20 to-orange-400/20 border-pink-500/20'
+              isSubscribed ? 'bg-yellow-500/10 border-yellow-500/20 shadow-lg shadow-yellow-500/10' : 'bg-gradient-to-br from-pink-500/20 to-orange-400/20 border-pink-500/20'
             }`}>
                <div className="absolute top-0 right-0 p-4 opacity-10">
                   <svg className="w-24 h-24" fill="currentColor" viewBox="0 0 24 24"><path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z"/></svg>
                </div>
-               <h4 className="font-black text-lg text-white flex items-center gap-2">
-                {isSubscribed ? <><span className="text-green-400">✓</span> Aura Pro Active</> : 'Aura Pro'}
+               <h4 className="font-black text-lg text-white flex items-center gap-2 uppercase tracking-tighter">
+                {isSubscribed ? <><span className="text-yellow-500">🏆</span> Aura Pro Active</> : 'Aura Pro Access'}
               </h4>
-              <p className="text-sm text-gray-300 mt-2 relative z-10">
+              <p className="text-sm text-gray-300 mt-2 relative z-10 font-medium">
                 {isSubscribed 
-                  ? 'You have unlocked unlimited 4K downloads and premium cloud processing.' 
-                  : 'Unlock unlimited 4K high-resolution downloads and all background suites.'}
+                  ? 'You are enjoying unlimited 4K downloads and premium cloud generation.' 
+                  : 'Unlock unlimited 4K high-resolution downloads and exclusive background presets.'}
               </p>
               {!isSubscribed && (
                 <button 

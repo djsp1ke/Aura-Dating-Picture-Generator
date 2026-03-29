@@ -1,7 +1,4 @@
 {
-  "name": "Aura - Dating Profile Optimizer",
-  "description": "Professional-grade AI image enhancer tailored for dating profiles. Recreate your look, clean up backgrounds, and perfect your lighting using Gemini 2.5 Flash Image.",
-  "requestFramePermissions": [
-    "camera"
-  ]
+  "name": "DJ Just Press Play",
+  "description": "A real-time interactive DJ game platform where pub guests join via QR code, request songs, compete in music quizzes, and contribute to team-based gameplay."
 }

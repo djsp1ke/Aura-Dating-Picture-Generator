@@ -1,47 +1,32 @@
+export const TEAMS = {
+  MONTAGUES: {
+    name: 'Montagues',
+    short_code: 'MON',
+    icon: '🗡️',
+    color: 'montague',
+    bgClass: 'bg-red-500',
+    textClass: 'text-red-400',
+    borderClass: 'border-red-500',
+    bgLightClass: 'bg-red-500/20',
+  },
+  CAPULETS: {
+    name: 'Capulets',
+    short_code: 'CAP',
+    icon: '🛡️',
+    color: 'capulet',
+    bgClass: 'bg-blue-500',
+    textClass: 'text-blue-400',
+    borderClass: 'border-blue-500',
+    bgLightClass: 'bg-blue-500/20',
+  },
+} as const;
 
-import { Preset } from './types';
+export const SCORING = {
+  PARTICIPATION: 1,
+  CORRECT: 5,
+  FASTEST: 5,
+} as const;
 
-export const PRESETS: Preset[] = [
-  {
-    id: 'professional',
-    label: 'Corporate Chic',
-    prompt: 'Enhance this photo to look like a high-quality professional portrait. Soften the background lighting, sharpen facial features naturally, and ensure a clean, high-end atmosphere suitable for a professional dating profile.',
-    description: 'Clean, professional, and trustworthy.',
-    icon: '👔'
-  },
-  {
-    id: 'golden-hour',
-    label: 'Golden Hour',
-    prompt: 'Apply a warm, golden hour sunset glow to the entire photo. Make the lighting soft and flattering on the skin, and give the background a slightly blurred, romantic outdoor feel.',
-    description: 'Warm, flattering sunset vibes.',
-    icon: '🌅'
-  },
-  {
-    id: 'adventure',
-    label: 'Adventurer',
-    prompt: 'Modify the background to look like a scenic mountain or coastal trail. Keep the subject unchanged but integrate them naturally into the new, vibrant outdoor setting.',
-    description: 'Great for showing your active side.',
-    icon: '⛰️'
-  },
-  {
-    id: 'cafe-vibes',
-    label: 'Urban Cafe',
-    prompt: 'Change the background to a stylish, modern interior of a cozy urban cafe. Add a slight bokeh effect to the background and warm up the indoor lighting.',
-    description: 'Cozy, approachable, and social.',
-    icon: '☕'
-  },
-  {
-    id: 'bw-classic',
-    label: 'Classic Noir',
-    prompt: 'Convert to a high-contrast, professional black and white portrait with film grain. Focus on dramatic lighting and sharp details.',
-    description: 'Sophisticated and timeless.',
-    icon: '🎞️'
-  },
-  {
-    id: 'cleanup',
-    label: 'Clean Background',
-    prompt: 'Remove any distracting objects or clutter from the background. Keep the subject exactly as they are but make the background minimalist and neat.',
-    description: 'Removes distractions behind you.',
-    icon: '🧹'
-  }
-];
+export const SONG_REQUEST_COOLDOWN_MS = 2 * 60 * 1000; // 2 minutes
+
+export const QUIZ_TIME_LIMIT_SECONDS = 15;

@@ -1,20 +1,37 @@
-<div align="center">
-<img width="1200" height="475" alt="GHBanner" src="https://github.com/user-attachments/assets/0aa67016-6eaf-458a-adb2-6e31a0763ed6" />
-</div>
+# DJ Just Press Play
 
-# Run and deploy your AI Studio app
+A real-time interactive DJ game platform where pub guests join via QR code, request songs, compete in music quizzes, and contribute to team-based gameplay.
 
-This contains everything you need to run your app locally.
+## Setup
 
-View your app in AI Studio: https://ai.studio/apps/drive/1z-hCfNl4eMdywD5XIoZcaaQY_skUoLYN
-
-## Run Locally
-
-**Prerequisites:**  Node.js
-
+**Prerequisites:** Node.js, a Supabase project
 
 1. Install dependencies:
-   `npm install`
-2. Set the `GEMINI_API_KEY` in [.env.local](.env.local) to your Gemini API key
-3. Run the app:
-   `npm run dev`
+   ```
+   npm install
+   ```
+
+2. Set up the database: Run `supabase-schema.sql` in your Supabase SQL Editor
+
+3. Create `.env.local` with your Supabase credentials:
+   ```
+   VITE_SUPABASE_URL=https://your-project.supabase.co
+   VITE_SUPABASE_ANON_KEY=your-anon-key
+   ```
+
+4. Run the app:
+   ```
+   npm run dev
+   ```
+
+## How It Works
+
+- **Guests** join via event code, get assigned to Montagues or Capulets, answer quiz questions, and request songs
+- **DJ** creates events, launches quiz rounds, approves/rejects song requests, and sends announcements
+- **Venue Screen** displays the live question, countdown timer, team scores, and leaderboard
+
+## Tech Stack
+
+- React + Vite + TypeScript
+- Supabase (database + realtime)
+- Tailwind CSS

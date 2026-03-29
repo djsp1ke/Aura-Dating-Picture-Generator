@@ -86,6 +86,28 @@ export async function joinEvent(eventId: string, nickname: string): Promise<Part
   return participant;
 }
 
+export async function getParticipantByToken(deviceToken: string): Promise<Participant | null> {
+  const { data, error } = await supabase
+    .from('participants')
+    .select('*, team:teams(*)')
+    .eq('device_token', deviceToken)
+    .single();
+
+  if (error) return null;
+  return data;
+}
+
+export async function getEventById(eventId: string): Promise<Event | null> {
+  const { data, error } = await supabase
+    .from('events')
+    .select('*')
+    .eq('id', eventId)
+    .single();
+
+  if (error) return null;
+  return data;
+}
+
 export async function getParticipants(eventId: string): Promise<Participant[]> {
   const { data, error } = await supabase
     .from('participants')

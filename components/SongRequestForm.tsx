@@ -5,9 +5,10 @@ interface Props {
   onSubmit: (title: string, artist: string) => Promise<void>;
   approvedRequests: SongRequest[];
   error: string | null;
+  scenario?: string | null;
 }
 
-export default function SongRequestForm({ onSubmit, approvedRequests, error }: Props) {
+export default function SongRequestForm({ onSubmit, approvedRequests, error, scenario }: Props) {
   const [title, setTitle] = useState('');
   const [artist, setArtist] = useState('');
   const [submitting, setSubmitting] = useState(false);
@@ -33,6 +34,14 @@ export default function SongRequestForm({ onSubmit, approvedRequests, error }: P
 
   return (
     <div>
+      {/* Scenario prompt */}
+      {scenario && (
+        <div className="bg-gradient-to-r from-primary-500/10 to-pink-500/10 border border-primary-500/30 rounded-2xl p-5 mb-4 text-center slide-up">
+          <p className="text-xs text-primary-300 uppercase tracking-wider font-medium mb-2">DJ Says...</p>
+          <p className="text-lg font-bold text-white">{scenario}</p>
+        </div>
+      )}
+
       <form onSubmit={handleSubmit} className="bg-surface-light rounded-2xl p-5 border border-gray-700 mb-6">
         <h3 className="font-bold text-lg mb-4">🎵 Request a Song</h3>
         <div className="space-y-3">

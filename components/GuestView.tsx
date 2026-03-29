@@ -2,7 +2,7 @@ import React, { useState, useEffect, useCallback } from 'react';
 import { Event, Participant, Game, GameOption, Announcement, SongRequest } from '../types';
 import { getActiveGame, submitAnswer, getSubmission } from '../services/gameService';
 import { submitSongRequest, getSongRequests } from '../services/songRequestService';
-import { getParticipants, getAnnouncements } from '../services/eventService';
+import { getParticipants, getAnnouncements, getEventById } from '../services/eventService';
 import { supabase } from '../services/supabaseClient';
 import QuizQuestion from './QuizQuestion';
 import Leaderboard from './Leaderboard';
@@ -25,17 +25,21 @@ export default function GuestView({ event, participant }: Props) {
   const [songRequests, setSongRequests] = useState<SongRequest[]>([]);
   const [currentPoints, setCurrentPoints] = useState(participant.points);
   const [songError, setSongError] = useState<string | null>(null);
+  const [currentEvent, setCurrentEvent] = useState(event);
 
   const teamColor = participant.team?.name === 'Montagues' ? 'red' : 'blue';
   const teamIcon = participant.team?.icon || '🎵';
 
   const loadData = useCallback(async () => {
-    const [game, parts, anns, songs] = await Promise.all([
+    const [game, parts, anns, songs, latestEvent] = await Promise.all([
       getActiveGame(event.id),
       getParticipants(event.id),
       getAnnouncements(event.id),
       getSongRequests(event.id, 'approved'),
+      getEventById(event.id),
     ]);
+
+    if (latestEvent) setCurrentEvent(latestEvent);
 
     setActiveGame(game);
     setParticipants(parts);
@@ -82,6 +86,10 @@ export default function GuestView({ event, participant }: Props) {
       supabase
         .channel('guest-songs')
         .on('postgres_changes', { event: '*', schema: 'public', table: 'song_requests', filter: `event_id=eq.${event.id}` }, () => loadData())
+        .subscribe(),
+      supabase
+        .channel('guest-events')
+        .on('postgres_changes', { event: 'UPDATE', schema: 'public', table: 'events', filter: `id=eq.${event.id}` }, () => loadData())
         .subscribe(),
     ];
 
@@ -200,6 +208,7 @@ export default function GuestView({ event, participant }: Props) {
             onSubmit={handleSongRequest}
             approvedRequests={songRequests}
             error={songError}
+            scenario={currentEvent.song_request_scenario}
           />
         )}
       </div>

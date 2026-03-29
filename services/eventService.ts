@@ -6,7 +6,7 @@ export async function createEvent(name: string, venueName: string): Promise<{ ev
 
   const { data: event, error } = await supabase
     .from('events')
-    .insert({ name, venue_name: venueName, event_code: eventCode, status: 'pending' })
+    .insert({ name, venue_name: venueName, event_code: eventCode, status: 'pending', default_timer_seconds: 15 })
     .select()
     .single();
 
@@ -43,6 +43,18 @@ export async function updateEventStatus(eventId: string, status: Event['status']
     .eq('id', eventId);
 
   if (error) throw error;
+}
+
+export async function updateEvent(eventId: string, updates: Partial<Pick<Event, 'current_song_title' | 'current_song_artist' | 'song_request_scenario' | 'default_timer_seconds' | 'name' | 'venue_name'>>): Promise<Event> {
+  const { data, error } = await supabase
+    .from('events')
+    .update(updates)
+    .eq('id', eventId)
+    .select()
+    .single();
+
+  if (error) throw error;
+  return data;
 }
 
 export async function joinEvent(eventId: string, nickname: string): Promise<Participant> {

@@ -1,5 +1,6 @@
 const GEMINI_API_KEY = process.env.GEMINI_API_KEY || '';
-const GEMINI_API_URL = 'https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent';
+const GEMINI_MODEL = process.env.GEMINI_MODEL || 'gemini-2.0-flash-lite';
+const GEMINI_API_URL = `https://generativelanguage.googleapis.com/v1beta/models/${GEMINI_MODEL}:generateContent`;
 
 const DIFFICULTIES: Record<string, string> = {
   easy: 'Easy: well-known mainstream facts that most casual listeners would know',
@@ -80,8 +81,14 @@ Each question must have exactly 4 options with exactly 1 correct answer. Randomi
     });
 
     if (!response.ok) {
-      const errText = await response.text();
-      return { statusCode: 502, body: JSON.stringify({ error: `Gemini API error: ${response.status}`, details: errText }) };
+      let detail = '';
+      try {
+        const errData = await response.json();
+        detail = errData?.error?.message || JSON.stringify(errData);
+      } catch {
+        detail = await response.text();
+      }
+      return { statusCode: 502, body: JSON.stringify({ error: `Gemini API error (${response.status}): ${detail}` }) };
     }
 
     const data = await response.json();

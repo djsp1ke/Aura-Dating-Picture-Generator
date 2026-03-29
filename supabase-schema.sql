@@ -11,6 +11,10 @@ create table events (
   venue_name text not null,
   event_code text unique not null,
   status text not null default 'pending' check (status in ('pending', 'active', 'ended')),
+  current_song_title text,
+  current_song_artist text,
+  song_request_scenario text,
+  default_timer_seconds integer default 15 not null,
   created_at timestamptz default now()
 );
 

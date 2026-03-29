@@ -4,6 +4,10 @@ export interface Event {
   venue_name: string;
   event_code: string;
   status: 'pending' | 'active' | 'ended';
+  current_song_title?: string | null;
+  current_song_artist?: string | null;
+  song_request_scenario?: string | null;
+  default_timer_seconds: number;
   created_at?: string;
 }
 

@@ -8,22 +8,25 @@ export async function submitSongRequest(
   songTitle: string,
   artistName: string,
   albumArt?: string,
-  spotifyUri?: string
+  spotifyUri?: string,
+  skipCooldown: boolean = false
 ): Promise<SongRequest> {
-  // Check cooldown
-  const { data: recent } = await supabase
-    .from('song_requests')
-    .select('created_at')
-    .eq('participant_id', participantId)
-    .order('created_at', { ascending: false })
-    .limit(1)
-    .single();
+  // Check cooldown (skip for jukebox hosts)
+  if (!skipCooldown) {
+    const { data: recent } = await supabase
+      .from('song_requests')
+      .select('created_at')
+      .eq('participant_id', participantId)
+      .order('created_at', { ascending: false })
+      .limit(1)
+      .single();
 
-  if (recent?.created_at) {
-    const elapsed = Date.now() - new Date(recent.created_at).getTime();
-    if (elapsed < SONG_REQUEST_COOLDOWN_MS) {
-      const remaining = Math.ceil((SONG_REQUEST_COOLDOWN_MS - elapsed) / 1000);
-      throw new Error(`Please wait ${remaining} seconds before requesting another song`);
+    if (recent?.created_at) {
+      const elapsed = Date.now() - new Date(recent.created_at).getTime();
+      if (elapsed < SONG_REQUEST_COOLDOWN_MS) {
+        const remaining = Math.ceil((SONG_REQUEST_COOLDOWN_MS - elapsed) / 1000);
+        throw new Error(`Please wait ${remaining} seconds before requesting another song`);
+      }
     }
   }
 

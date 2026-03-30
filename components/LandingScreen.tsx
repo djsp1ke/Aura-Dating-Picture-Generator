@@ -4,11 +4,14 @@ import { AppView } from '../types';
 interface Props {
   onNavigate: (view: AppView) => void;
   onDJLogin: (eventCode: string) => void;
+  onCreateJukebox: (name: string) => void;
 }
 
-export default function LandingScreen({ onNavigate, onDJLogin }: Props) {
+export default function LandingScreen({ onNavigate, onDJLogin, onCreateJukebox }: Props) {
   const [showDJ, setShowDJ] = useState(false);
+  const [showJukebox, setShowJukebox] = useState(false);
   const [djCode, setDJCode] = useState('');
+  const [jukeboxName, setJukeboxName] = useState('');
 
   return (
     <div className="min-h-screen flex flex-col items-center justify-center p-6 bg-gradient-to-b from-surface-dark via-surface to-surface-dark">
@@ -27,6 +30,32 @@ export default function LandingScreen({ onNavigate, onDJLogin }: Props) {
         >
           Join a Game
         </button>
+
+        <button
+          onClick={() => setShowJukebox(!showJukebox)}
+          className="w-full py-4 px-6 bg-gradient-to-r from-green-500/80 to-emerald-600/80 text-white font-bold text-lg rounded-2xl hover:from-green-600 hover:to-emerald-700 transition-all"
+        >
+          🎶 Start a Jukebox
+        </button>
+
+        {showJukebox && (
+          <div className="bg-surface-light rounded-2xl p-4 border border-green-500/30 slide-up">
+            <p className="text-xs text-gray-400 mb-3">No DJ needed — guests add songs and vote on the queue</p>
+            <input
+              type="text"
+              placeholder="Jukebox name (e.g. Friday Night)"
+              value={jukeboxName}
+              onChange={(e) => setJukeboxName(e.target.value)}
+              className="w-full px-4 py-3 bg-surface-dark border border-gray-600 rounded-xl text-white placeholder-gray-500 focus:outline-none focus:border-green-500 mb-3"
+            />
+            <button
+              onClick={() => onCreateJukebox(jukeboxName || 'Jukebox')}
+              className="w-full py-3 bg-green-500 text-black font-bold rounded-xl hover:bg-green-400 transition-colors"
+            >
+              Create Jukebox
+            </button>
+          </div>
+        )}
 
         <button
           onClick={() => onNavigate('venue')}

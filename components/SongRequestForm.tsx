@@ -1,8 +1,10 @@
 import React, { useState } from 'react';
 import { SongRequest } from '../types';
+import SpotifySearch from './SpotifySearch';
+import { SpotifyTrack } from '../services/spotifyService';
 
 interface Props {
-  onSubmit: (title: string, artist: string) => Promise<void>;
+  onSubmit: (title: string, artist: string, albumArt?: string, spotifyUri?: string) => Promise<void>;
   approvedRequests: SongRequest[];
   error: string | null;
   scenario?: string | null;
@@ -11,8 +13,25 @@ interface Props {
 export default function SongRequestForm({ onSubmit, approvedRequests, error, scenario }: Props) {
   const [title, setTitle] = useState('');
   const [artist, setArtist] = useState('');
+  const [albumArt, setAlbumArt] = useState<string | null>(null);
+  const [spotifyUri, setSpotifyUri] = useState<string | null>(null);
   const [submitting, setSubmitting] = useState(false);
   const [success, setSuccess] = useState(false);
+  const [manualMode, setManualMode] = useState(false);
+
+  const handleSpotifySelect = (track: SpotifyTrack) => {
+    setTitle(track.title);
+    setArtist(track.artist);
+    setAlbumArt(track.albumArt);
+    setSpotifyUri(track.spotifyUri);
+  };
+
+  const clearSelection = () => {
+    setTitle('');
+    setArtist('');
+    setAlbumArt(null);
+    setSpotifyUri(null);
+  };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -20,9 +39,8 @@ export default function SongRequestForm({ onSubmit, approvedRequests, error, sce
     setSubmitting(true);
     setSuccess(false);
     try {
-      await onSubmit(title.trim(), artist.trim());
-      setTitle('');
-      setArtist('');
+      await onSubmit(title.trim(), artist.trim(), albumArt || undefined, spotifyUri || undefined);
+      clearSelection();
       setSuccess(true);
       setTimeout(() => setSuccess(false), 3000);
     } catch {
@@ -43,25 +61,65 @@ export default function SongRequestForm({ onSubmit, approvedRequests, error, sce
       )}
 
       <form onSubmit={handleSubmit} className="bg-surface-light rounded-2xl p-5 border border-gray-700 mb-6">
-        <h3 className="font-bold text-lg mb-4">🎵 Request a Song</h3>
-        <div className="space-y-3">
-          <input
-            type="text"
-            placeholder="Song title"
-            value={title}
-            onChange={(e) => setTitle(e.target.value)}
-            className="w-full px-4 py-3 bg-surface-dark border border-gray-600 rounded-xl text-white placeholder-gray-500 focus:outline-none focus:border-primary-500"
-            maxLength={100}
-          />
-          <input
-            type="text"
-            placeholder="Artist name"
-            value={artist}
-            onChange={(e) => setArtist(e.target.value)}
-            className="w-full px-4 py-3 bg-surface-dark border border-gray-600 rounded-xl text-white placeholder-gray-500 focus:outline-none focus:border-primary-500"
-            maxLength={100}
-          />
+        <div className="flex items-center justify-between mb-4">
+          <h3 className="font-bold text-lg">🎵 Request a Song</h3>
+          <button
+            type="button"
+            onClick={() => { setManualMode(!manualMode); clearSelection(); }}
+            className="text-xs text-gray-400 hover:text-white transition-colors"
+          >
+            {manualMode ? '🔍 Search Spotify' : '✏️ Type manually'}
+          </button>
         </div>
+
+        {!manualMode ? (
+          <>
+            {/* Spotify search */}
+            {!title ? (
+              <SpotifySearch onSelect={handleSpotifySelect} placeholder="Search Spotify for a song..." />
+            ) : (
+              /* Selected track preview */
+              <div className="flex items-center gap-3 bg-surface-dark rounded-xl p-3 border border-green-500/30">
+                {albumArt ? (
+                  <img src={albumArt} alt="" className="w-12 h-12 rounded-lg flex-shrink-0" />
+                ) : (
+                  <div className="w-12 h-12 rounded-lg bg-gray-700 flex items-center justify-center flex-shrink-0 text-xl">🎵</div>
+                )}
+                <div className="flex-1 min-w-0">
+                  <div className="font-medium truncate">{title}</div>
+                  <div className="text-sm text-gray-400 truncate">{artist}</div>
+                </div>
+                <button
+                  type="button"
+                  onClick={clearSelection}
+                  className="text-gray-500 hover:text-white text-lg flex-shrink-0 w-8 h-8 flex items-center justify-center"
+                >
+                  ✕
+                </button>
+              </div>
+            )}
+          </>
+        ) : (
+          /* Manual input */
+          <div className="space-y-3">
+            <input
+              type="text"
+              placeholder="Song title"
+              value={title}
+              onChange={(e) => setTitle(e.target.value)}
+              className="w-full px-4 py-3 bg-surface-dark border border-gray-600 rounded-xl text-white placeholder-gray-500 focus:outline-none focus:border-primary-500"
+              maxLength={100}
+            />
+            <input
+              type="text"
+              placeholder="Artist name"
+              value={artist}
+              onChange={(e) => setArtist(e.target.value)}
+              className="w-full px-4 py-3 bg-surface-dark border border-gray-600 rounded-xl text-white placeholder-gray-500 focus:outline-none focus:border-primary-500"
+              maxLength={100}
+            />
+          </div>
+        )}
 
         {error && (
           <div className="mt-3 bg-red-500/20 border border-red-500/50 rounded-xl p-3 text-red-300 text-sm">
@@ -91,7 +149,11 @@ export default function SongRequestForm({ onSubmit, approvedRequests, error, sce
           <div className="space-y-2">
             {approvedRequests.map((req) => (
               <div key={req.id} className="bg-surface-light rounded-xl p-3 flex items-center gap-3">
-                <span className="text-xl">🎶</span>
+                {req.album_art ? (
+                  <img src={req.album_art} alt="" className="w-10 h-10 rounded-md flex-shrink-0" />
+                ) : (
+                  <span className="text-xl w-10 h-10 flex items-center justify-center">🎶</span>
+                )}
                 <div className="flex-1 min-w-0">
                   <div className="font-medium truncate">{req.song_title}</div>
                   <div className="text-sm text-gray-400 truncate">{req.artist_name}</div>

@@ -6,7 +6,9 @@ export async function submitSongRequest(
   eventId: string,
   participantId: string,
   songTitle: string,
-  artistName: string
+  artistName: string,
+  albumArt?: string,
+  spotifyUri?: string
 ): Promise<SongRequest> {
   // Check cooldown
   const { data: recent } = await supabase
@@ -32,6 +34,8 @@ export async function submitSongRequest(
       participant_id: participantId,
       song_title: songTitle,
       artist_name: artistName,
+      album_art: albumArt || null,
+      spotify_uri: spotifyUri || null,
       status: 'pending',
     })
     .select()

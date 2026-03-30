@@ -110,10 +110,10 @@ export default function GuestView({ event, participant }: Props) {
     }
   };
 
-  const handleSongRequest = async (title: string, artist: string) => {
+  const handleSongRequest = async (title: string, artist: string, albumArt?: string, spotifyUri?: string) => {
     setSongError(null);
     try {
-      await submitSongRequest(event.id, participant.id, title, artist);
+      await submitSongRequest(event.id, participant.id, title, artist, albumArt, spotifyUri);
     } catch (err: any) {
       setSongError(err.message);
       throw err;

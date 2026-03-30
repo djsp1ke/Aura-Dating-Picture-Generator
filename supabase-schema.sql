@@ -13,6 +13,8 @@ create table events (
   status text not null default 'pending' check (status in ('pending', 'active', 'ended')),
   current_song_title text,
   current_song_artist text,
+  current_song_album_art text,
+  current_song_spotify_uri text,
   song_request_scenario text,
   default_timer_seconds integer default 15 not null,
   created_at timestamptz default now()
@@ -76,6 +78,8 @@ create table song_requests (
   participant_id uuid references participants(id) on delete cascade not null,
   song_title text not null,
   artist_name text not null,
+  album_art text,
+  spotify_uri text,
   status text not null default 'pending' check (status in ('pending', 'approved', 'rejected', 'played')),
   created_at timestamptz default now()
 );

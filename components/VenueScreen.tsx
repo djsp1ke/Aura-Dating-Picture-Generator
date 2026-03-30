@@ -167,10 +167,26 @@ export default function VenueScreen({ onBack }: Props) {
             </div>
           ) : (
             <div className="flex-1 flex flex-col items-center justify-center">
-              <div className="text-8xl mb-6">🎵</div>
-              <h2 className="text-5xl font-black bg-gradient-to-r from-primary-400 to-pink-400 bg-clip-text text-transparent">
-                DJ Just Press Play
-              </h2>
+              {/* Now Playing */}
+              {event.current_song_title ? (
+                <div className="flex flex-col items-center mb-8">
+                  {event.current_song_album_art ? (
+                    <img src={event.current_song_album_art} alt="" className="w-48 h-48 rounded-2xl shadow-2xl mb-4" />
+                  ) : (
+                    <div className="text-8xl mb-4">🎵</div>
+                  )}
+                  <p className="text-sm text-gray-500 uppercase tracking-wider mb-1">Now Playing</p>
+                  <h2 className="text-4xl font-black text-center">{event.current_song_title}</h2>
+                  <p className="text-xl text-gray-400 mt-1">{event.current_song_artist}</p>
+                </div>
+              ) : (
+                <>
+                  <div className="text-8xl mb-6">🎵</div>
+                  <h2 className="text-5xl font-black bg-gradient-to-r from-primary-400 to-pink-400 bg-clip-text text-transparent">
+                    DJ Just Press Play
+                  </h2>
+                </>
+              )}
               <p className="text-xl text-gray-500 mt-4">Next question coming soon...</p>
 
               {/* Show approved songs when idle */}
@@ -180,7 +196,11 @@ export default function VenueScreen({ onBack }: Props) {
                   <div className="space-y-2">
                     {approvedSongs.slice(0, 5).map((s) => (
                       <div key={s.id} className="bg-gray-900 rounded-xl p-3 flex items-center gap-3 border border-gray-800">
-                        <span className="text-xl">🎶</span>
+                        {s.album_art ? (
+                          <img src={s.album_art} alt="" className="w-10 h-10 rounded-md flex-shrink-0" />
+                        ) : (
+                          <span className="text-xl">🎶</span>
+                        )}
                         <span className="font-medium">{s.song_title}</span>
                         <span className="text-gray-500">— {s.artist_name}</span>
                       </div>

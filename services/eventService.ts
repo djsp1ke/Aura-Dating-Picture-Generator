@@ -45,7 +45,7 @@ export async function updateEventStatus(eventId: string, status: Event['status']
   if (error) throw error;
 }
 
-export async function updateEvent(eventId: string, updates: Partial<Pick<Event, 'current_song_title' | 'current_song_artist' | 'song_request_scenario' | 'default_timer_seconds' | 'name' | 'venue_name'>>): Promise<Event> {
+export async function updateEvent(eventId: string, updates: Partial<Pick<Event, 'current_song_title' | 'current_song_artist' | 'current_song_album_art' | 'current_song_spotify_uri' | 'song_request_scenario' | 'default_timer_seconds' | 'name' | 'venue_name'>>): Promise<Event> {
   const { data, error } = await supabase
     .from('events')
     .update(updates)

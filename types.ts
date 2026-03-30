@@ -6,6 +6,8 @@ export interface Event {
   status: 'pending' | 'active' | 'ended';
   current_song_title?: string | null;
   current_song_artist?: string | null;
+  current_song_album_art?: string | null;
+  current_song_spotify_uri?: string | null;
   song_request_scenario?: string | null;
   default_timer_seconds: number;
   created_at?: string;
@@ -64,6 +66,8 @@ export interface SongRequest {
   participant_id: string;
   song_title: string;
   artist_name: string;
+  album_art?: string | null;
+  spotify_uri?: string | null;
   status: 'pending' | 'approved' | 'rejected' | 'played';
   created_at?: string;
   participant?: Participant;

@@ -2,7 +2,9 @@ import React, { useState, useEffect, useCallback } from 'react';
 import { Event, Participant, Game, GameOption, Team, SongRequest, Announcement } from '../types';
 import { getParticipants, getTeamScores, getAnnouncements, getEventByCode } from '../services/eventService';
 import { getActiveGame } from '../services/gameService';
-import { getSongRequests } from '../services/songRequestService';
+import { getSongRequests, updateSongRequestStatus } from '../services/songRequestService';
+import { getJukeboxQueue } from '../services/jukeboxService';
+import MusicPlayer from './MusicPlayer';
 import { supabase } from '../services/supabaseClient';
 
 interface Props {
@@ -16,6 +18,7 @@ export default function VenueScreen({ onBack }: Props) {
   const [teamScores, setTeamScores] = useState<{ team: Team; score: number }[]>([]);
   const [participants, setParticipants] = useState<Participant[]>([]);
   const [approvedSongs, setApprovedSongs] = useState<SongRequest[]>([]);
+  const [jukeboxQueue, setJukeboxQueue] = useState<SongRequest[]>([]);
   const [announcements, setAnnouncements] = useState<Announcement[]>([]);
   const [timeLeft, setTimeLeft] = useState(0);
 
@@ -33,6 +36,11 @@ export default function VenueScreen({ onBack }: Props) {
     setParticipants(parts);
     setApprovedSongs(songs);
     setAnnouncements(anns);
+
+    if (event.mode === 'jukebox') {
+      const jq = await getJukeboxQueue(event.id);
+      setJukeboxQueue(jq);
+    }
 
     if (game?.starts_at && game.status === 'active') {
       const elapsed = (Date.now() - new Date(game.starts_at).getTime()) / 1000;
@@ -187,7 +195,19 @@ export default function VenueScreen({ onBack }: Props) {
                   </h2>
                 </>
               )}
-              <p className="text-xl text-gray-500 mt-4">Next question coming soon...</p>
+              {event.mode !== 'jukebox' && (
+                <p className="text-xl text-gray-500 mt-4">Next question coming soon...</p>
+              )}
+
+              {/* Jukebox music player */}
+              {event.mode === 'jukebox' && jukeboxQueue.length > 0 && (
+                <div className="mt-6 w-full max-w-md">
+                  <MusicPlayer
+                    queue={jukeboxQueue}
+                    onSongEnd={(song) => updateSongRequestStatus(song.id, 'played').then(loadData)}
+                  />
+                </div>
+              )}
 
               {/* Show approved songs when idle */}
               {approvedSongs.length > 0 && (

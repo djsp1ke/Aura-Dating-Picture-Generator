@@ -10,6 +10,8 @@ import SpotifySearch from './SpotifySearch';
 import { SpotifyTrack } from '../services/spotifyService';
 import QuizQuestion from './QuizQuestion';
 import Leaderboard from './Leaderboard';
+import MusicPlayer from './MusicPlayer';
+import { updateSongRequestStatus } from '../services/songRequestService';
 
 interface Props {
   event: Event;
@@ -173,7 +175,7 @@ export default function JukeboxView({ event, participant }: Props) {
     setSubmitting(true);
     setSubmitError(null);
     try {
-      await submitSongRequest(event.id, participant.id, title.trim(), artist.trim(), selectedTrack?.albumArt, selectedTrack?.spotifyUri, isHost);
+      await submitSongRequest(event.id, participant.id, title.trim(), artist.trim(), selectedTrack?.albumArt, selectedTrack?.spotifyUri, isHost, selectedTrack?.previewUrl || undefined);
       setSelectedTrack(null);
       setManualTitle('');
       setManualArtist('');
@@ -264,6 +266,17 @@ export default function JukeboxView({ event, participant }: Props) {
         {/* QUEUE */}
         {tab === 'queue' && (
           <div>
+            {/* Music Player */}
+            {queue.some((s) => s.preview_url) && (
+              <div className="mb-4">
+                <MusicPlayer
+                  queue={queue}
+                  onSongEnd={isHost ? (song) => updateSongRequestStatus(song.id, 'played').then(loadData) : undefined}
+                  compact
+                />
+              </div>
+            )}
+
             {queue.length === 0 ? (
               <div className="text-center py-16">
                 <div className="text-5xl mb-4">🎶</div>

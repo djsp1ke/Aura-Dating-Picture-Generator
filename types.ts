@@ -69,6 +69,7 @@ export interface SongRequest {
   artist_name: string;
   album_art?: string | null;
   spotify_uri?: string | null;
+  preview_url?: string | null;
   votes?: number;
   status: 'pending' | 'approved' | 'rejected' | 'played';
   created_at?: string;

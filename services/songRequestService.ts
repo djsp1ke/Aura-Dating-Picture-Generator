@@ -9,7 +9,8 @@ export async function submitSongRequest(
   artistName: string,
   albumArt?: string,
   spotifyUri?: string,
-  skipCooldown: boolean = false
+  skipCooldown: boolean = false,
+  previewUrl?: string
 ): Promise<SongRequest> {
   // Check cooldown (skip for jukebox hosts)
   if (!skipCooldown) {
@@ -39,6 +40,7 @@ export async function submitSongRequest(
       artist_name: artistName,
       album_art: albumArt || null,
       spotify_uri: spotifyUri || null,
+      preview_url: previewUrl || null,
       status: 'pending',
     })
     .select()

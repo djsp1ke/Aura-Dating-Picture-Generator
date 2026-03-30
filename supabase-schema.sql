@@ -81,6 +81,7 @@ create table song_requests (
   artist_name text not null,
   album_art text,
   spotify_uri text,
+  preview_url text,
   status text not null default 'pending' check (status in ('pending', 'approved', 'rejected', 'played')),
   created_at timestamptz default now()
 );

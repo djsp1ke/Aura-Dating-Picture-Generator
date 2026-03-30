@@ -75,13 +75,15 @@ export default function JukeboxView({ event, participant }: Props) {
     setSubmitting(true);
     setSubmitError(null);
     try {
+      const isHost = participant.nickname === 'Host';
       await submitSongRequest(
         event.id,
         participant.id,
         title.trim(),
         artist.trim(),
         selectedTrack?.albumArt,
-        selectedTrack?.spotifyUri
+        selectedTrack?.spotifyUri,
+        isHost
       );
       setSelectedTrack(null);
       setManualTitle('');

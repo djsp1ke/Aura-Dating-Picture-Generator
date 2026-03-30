@@ -6,6 +6,7 @@ import JoinScreen from './components/JoinScreen';
 import GuestView from './components/GuestView';
 import DJView from './components/DJView';
 import VenueScreen from './components/VenueScreen';
+import JukeboxView from './components/JukeboxView';
 
 const SESSION_KEY = 'djjpp_session';
 
@@ -58,14 +59,14 @@ export default function App() {
       }
 
       try {
-        if (session.view === 'guest' && session.deviceToken) {
+        if ((session.view === 'guest' || session.view === 'jukebox') && session.deviceToken) {
           const p = await getParticipantByToken(session.deviceToken);
           if (p) {
             const ev = await getEventById(p.event_id);
             if (ev && ev.status !== 'ended') {
               setParticipant(p);
               setEvent(ev);
-              setView('guest');
+              setView(ev.mode === 'jukebox' ? 'jukebox' : 'guest');
               setRestoring(false);
               return;
             }
@@ -88,7 +89,7 @@ export default function App() {
           return;
         }
       } catch {
-        // Restore failed, go to landing
+        // Restore failed
       }
 
       clearSession();
@@ -112,8 +113,9 @@ export default function App() {
       const p = await joinEvent(ev.id, nickname);
       setEvent(ev);
       setParticipant(p);
-      setView('guest');
-      saveSession('guest', p, ev, false);
+      const targetView = ev.mode === 'jukebox' ? 'jukebox' : 'guest';
+      setView(targetView);
+      saveSession(targetView, p, ev, false);
     } catch (err: any) {
       setJoinError(err.message || 'Failed to join event');
     } finally {
@@ -131,13 +133,27 @@ export default function App() {
           saveSession('dj', null, ev, true);
         }
       } else {
-        const { event: newEvent } = await createEvent('DJ Night', 'My Venue');
+        const { event: newEvent } = await createEvent('DJ Night', 'My Venue', 'dj');
         setEvent(newEvent);
         setView('dj');
         saveSession('dj', null, newEvent, true);
       }
     } catch (err: any) {
       console.error('DJ login error:', err);
+    }
+  };
+
+  const handleCreateJukebox = async (name: string) => {
+    try {
+      const { event: newEvent } = await createEvent(name || 'Jukebox', 'Venue', 'jukebox');
+      // Auto-join as a participant
+      const p = await joinEvent(newEvent.id, 'Host');
+      setEvent(newEvent);
+      setParticipant(p);
+      setView('jukebox');
+      saveSession('jukebox', p, newEvent, false);
+    } catch (err: any) {
+      console.error('Jukebox create error:', err);
     }
   };
 
@@ -169,25 +185,21 @@ export default function App() {
 
   switch (view) {
     case 'landing':
-      return <LandingScreen onNavigate={handleNavigate} onDJLogin={handleDJLogin} />;
+      return <LandingScreen onNavigate={handleNavigate} onDJLogin={handleDJLogin} onCreateJukebox={handleCreateJukebox} />;
     case 'join':
-      return (
-        <JoinScreen
-          onJoin={handleJoin}
-          onBack={handleBack}
-          error={joinError}
-          loading={joinLoading}
-        />
-      );
+      return <JoinScreen onJoin={handleJoin} onBack={handleBack} error={joinError} loading={joinLoading} />;
     case 'guest':
       if (!event || !participant) return null;
       return <GuestView event={event} participant={participant} />;
+    case 'jukebox':
+      if (!event || !participant) return null;
+      return <JukeboxView event={event} participant={participant} />;
     case 'dj':
       if (!event) return null;
       return <DJView event={event} onEventUpdate={handleEventUpdate} />;
     case 'venue':
       return <VenueScreen onBack={handleBack} />;
     default:
-      return <LandingScreen onNavigate={handleNavigate} onDJLogin={handleDJLogin} />;
+      return <LandingScreen onNavigate={handleNavigate} onDJLogin={handleDJLogin} onCreateJukebox={handleCreateJukebox} />;
   }
 }

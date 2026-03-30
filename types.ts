@@ -4,6 +4,7 @@ export interface Event {
   venue_name: string;
   event_code: string;
   status: 'pending' | 'active' | 'ended';
+  mode: 'dj' | 'jukebox';
   current_song_title?: string | null;
   current_song_artist?: string | null;
   current_song_album_art?: string | null;
@@ -68,9 +69,16 @@ export interface SongRequest {
   artist_name: string;
   album_art?: string | null;
   spotify_uri?: string | null;
+  votes?: number;
   status: 'pending' | 'approved' | 'rejected' | 'played';
   created_at?: string;
   participant?: Participant;
+}
+
+export interface SongVote {
+  id: string;
+  song_request_id: string;
+  participant_id: string;
 }
 
 export interface Announcement {
@@ -80,7 +88,7 @@ export interface Announcement {
   created_at?: string;
 }
 
-export type AppView = 'landing' | 'join' | 'guest' | 'dj' | 'venue';
+export type AppView = 'landing' | 'join' | 'guest' | 'dj' | 'venue' | 'jukebox';
 
 export interface AppState {
   view: AppView;

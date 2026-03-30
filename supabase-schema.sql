@@ -11,6 +11,7 @@ create table events (
   venue_name text not null,
   event_code text unique not null,
   status text not null default 'pending' check (status in ('pending', 'active', 'ended')),
+  mode text not null default 'dj' check (mode in ('dj', 'jukebox')),
   current_song_title text,
   current_song_artist text,
   current_song_album_art text,
@@ -92,6 +93,14 @@ create table announcements (
   created_at timestamptz default now()
 );
 
+-- Song votes table (for jukebox mode)
+create table song_votes (
+  id uuid primary key default uuid_generate_v4(),
+  song_request_id uuid references song_requests(id) on delete cascade not null,
+  participant_id uuid references participants(id) on delete cascade not null,
+  unique(song_request_id, participant_id)
+);
+
 -- Self-referencing FK for fastest_submission_id
 alter table games
   add constraint games_fastest_submission_fk
@@ -124,6 +133,7 @@ alter publication supabase_realtime add table game_options;
 alter publication supabase_realtime add table game_submissions;
 alter publication supabase_realtime add table song_requests;
 alter publication supabase_realtime add table announcements;
+alter publication supabase_realtime add table song_votes;
 
 -- Row Level Security (permissive for MVP — tighten for production)
 alter table events enable row level security;
@@ -134,6 +144,7 @@ alter table game_options enable row level security;
 alter table game_submissions enable row level security;
 alter table song_requests enable row level security;
 alter table announcements enable row level security;
+alter table song_votes enable row level security;
 
 -- Allow all operations for now (anon key) — restrict in production
 create policy "Allow all" on events for all using (true) with check (true);
@@ -144,3 +155,4 @@ create policy "Allow all" on game_options for all using (true) with check (true)
 create policy "Allow all" on game_submissions for all using (true) with check (true);
 create policy "Allow all" on song_requests for all using (true) with check (true);
 create policy "Allow all" on announcements for all using (true) with check (true);
+create policy "Allow all" on song_votes for all using (true) with check (true);

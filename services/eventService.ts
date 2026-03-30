@@ -1,12 +1,12 @@
 import { supabase } from './supabaseClient';
 import { Event, Team, Participant, Announcement } from '../types';
 
-export async function createEvent(name: string, venueName: string): Promise<{ event: Event; teams: Team[] }> {
+export async function createEvent(name: string, venueName: string, mode: 'dj' | 'jukebox' = 'dj'): Promise<{ event: Event; teams: Team[] }> {
   const eventCode = Math.random().toString(36).substring(2, 8).toUpperCase();
 
   const { data: event, error } = await supabase
     .from('events')
-    .insert({ name, venue_name: venueName, event_code: eventCode, status: 'pending', default_timer_seconds: 15 })
+    .insert({ name, venue_name: venueName, event_code: eventCode, status: mode === 'jukebox' ? 'active' : 'pending', mode, default_timer_seconds: 15 })
     .select()
     .single();
 

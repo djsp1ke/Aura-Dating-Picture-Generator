@@ -1,6 +1,5 @@
-const GEMINI_API_KEY = process.env.GEMINI_API_KEY || '';
-const GEMINI_MODEL = process.env.GEMINI_MODEL || 'gemini-1.5-flash-latest';
-const GEMINI_API_URL = `https://generativelanguage.googleapis.com/v1/models/${GEMINI_MODEL}:generateContent`;
+const ANTHROPIC_API_KEY = process.env.ANTHROPIC_API_KEY || '';
+const CLAUDE_MODEL = process.env.CLAUDE_MODEL || 'claude-haiku-4-5-20251001';
 
 const DIFFICULTIES: Record<string, string> = {
   easy: 'Easy: well-known mainstream facts that most casual listeners would know',
@@ -13,8 +12,8 @@ export const handler = async (event: any) => {
     return { statusCode: 405, body: 'Method not allowed' };
   }
 
-  if (!GEMINI_API_KEY) {
-    return { statusCode: 500, body: JSON.stringify({ error: 'GEMINI_API_KEY not configured on server' }) };
+  if (!ANTHROPIC_API_KEY) {
+    return { statusCode: 500, body: JSON.stringify({ error: 'ANTHROPIC_API_KEY not configured on server' }) };
   }
 
   let settings: {
@@ -56,7 +55,7 @@ Create fun, engaging questions about artists, songs, albums, music history, lyri
 
   prompt += `
 
-IMPORTANT: Return ONLY valid JSON. No markdown, no code fences. Return an array of objects with this exact structure:
+IMPORTANT: Return ONLY valid JSON. No markdown, no code fences, no explanation. Return an array of objects with this exact structure:
 [
   {
     "question": "What is the question?",
@@ -72,11 +71,17 @@ IMPORTANT: Return ONLY valid JSON. No markdown, no code fences. Return an array 
 Each question must have exactly 4 options with exactly 1 correct answer. Randomize the position of the correct answer.`;
 
   try {
-    const response = await fetch(`${GEMINI_API_URL}?key=${GEMINI_API_KEY}`, {
+    const response = await fetch('https://api.anthropic.com/v1/messages', {
       method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
+      headers: {
+        'Content-Type': 'application/json',
+        'x-api-key': ANTHROPIC_API_KEY,
+        'anthropic-version': '2023-06-01',
+      },
       body: JSON.stringify({
-        contents: [{ parts: [{ text: prompt }] }],
+        model: CLAUDE_MODEL,
+        max_tokens: 4096,
+        messages: [{ role: 'user', content: prompt }],
       }),
     });
 
@@ -88,11 +93,11 @@ Each question must have exactly 4 options with exactly 1 correct answer. Randomi
       } catch {
         detail = await response.text();
       }
-      return { statusCode: 502, body: JSON.stringify({ error: `Gemini API error (${response.status}): ${detail}` }) };
+      return { statusCode: 502, body: JSON.stringify({ error: `Claude API error (${response.status}): ${detail}` }) };
     }
 
     const data = await response.json();
-    const text = data.candidates?.[0]?.content?.parts?.[0]?.text?.trim() || '';
+    const text = (data.content?.[0]?.text || '').trim();
     const cleaned = text.replace(/^```(?:json)?\s*/i, '').replace(/\s*```$/i, '');
 
     const questions = JSON.parse(cleaned);

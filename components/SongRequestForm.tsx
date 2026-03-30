@@ -4,7 +4,7 @@ import SpotifySearch from './SpotifySearch';
 import { SpotifyTrack } from '../services/spotifyService';
 
 interface Props {
-  onSubmit: (title: string, artist: string, albumArt?: string, spotifyUri?: string) => Promise<void>;
+  onSubmit: (title: string, artist: string, albumArt?: string, spotifyUri?: string, previewUrl?: string) => Promise<void>;
   approvedRequests: SongRequest[];
   error: string | null;
   scenario?: string | null;
@@ -15,6 +15,7 @@ export default function SongRequestForm({ onSubmit, approvedRequests, error, sce
   const [artist, setArtist] = useState('');
   const [albumArt, setAlbumArt] = useState<string | null>(null);
   const [spotifyUri, setSpotifyUri] = useState<string | null>(null);
+  const [previewUrl, setPreviewUrl] = useState<string | null>(null);
   const [submitting, setSubmitting] = useState(false);
   const [success, setSuccess] = useState(false);
   const [manualMode, setManualMode] = useState(false);
@@ -24,6 +25,7 @@ export default function SongRequestForm({ onSubmit, approvedRequests, error, sce
     setArtist(track.artist);
     setAlbumArt(track.albumArt);
     setSpotifyUri(track.spotifyUri);
+    setPreviewUrl(track.previewUrl);
   };
 
   const clearSelection = () => {
@@ -31,6 +33,7 @@ export default function SongRequestForm({ onSubmit, approvedRequests, error, sce
     setArtist('');
     setAlbumArt(null);
     setSpotifyUri(null);
+    setPreviewUrl(null);
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -39,7 +42,7 @@ export default function SongRequestForm({ onSubmit, approvedRequests, error, sce
     setSubmitting(true);
     setSuccess(false);
     try {
-      await onSubmit(title.trim(), artist.trim(), albumArt || undefined, spotifyUri || undefined);
+      await onSubmit(title.trim(), artist.trim(), albumArt || undefined, spotifyUri || undefined, previewUrl || undefined);
       clearSelection();
       setSuccess(true);
       setTimeout(() => setSuccess(false), 3000);
